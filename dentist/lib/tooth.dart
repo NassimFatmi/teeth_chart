@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:math' as math;
 
+// ignore: must_be_immutable
 class Tooth extends StatefulWidget {
   int toothIndex;
   String type;
@@ -167,8 +168,10 @@ class _ToothState extends State<Tooth> {
     }
     Widget up = SvgPicture.asset(
       'assets/teeth/${widget.toothIndex}_up.svg',
-      height: toothSize - 20,
       color: upColor,
+      height:
+          this.widget.toothIndex % 10 >= 6 ? toothSize - 30 : toothSize - 20,
+      alignment: Alignment.center,
     );
     Widget down = Transform.rotate(
       angle: isImplanted && reversed ? math.pi : 0,
@@ -176,60 +179,58 @@ class _ToothState extends State<Tooth> {
         isImplanted
             ? 'assets/teeth/$implant.svg'
             : 'assets/teeth/${widget.toothIndex}_down.svg',
-        height: toothSize,
-        color: downColor,
+        height: this.widget.toothIndex % 10 >= 6 ? 80 : toothSize,
+        color: isImplanted ? null : downColor,
+        alignment: Alignment.center,
       ),
     );
 
-    Widget colorsCircle = Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-          color: Colors.red, borderRadius: BorderRadius.circular(20)),
-    );
-
-    var tooth = isRemoved
-        ? Icon(
-            Icons.close,
-            size: 35,
-            color: Colors.red,
-          )
-        : isNeedsExtraction
+    var tooth = Container(
+        height: 200,
+        width: this.widget.toothIndex % 10 >= 6 ? 90 : 60,
+        margin: EdgeInsets.only(right: 8, left: 8),
+        child: isRemoved
             ? Icon(
-                Icons.priority_high,
+                Icons.close,
                 size: 35,
                 color: Colors.red,
               )
-            : Stack(
-                alignment: Alignment.center,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: reversed ? [down, up] : [up, down],
-                  ),
-                  isOcclusion
-                      ? Positioned(
-                          top: 25,
-                          child: Icon(
-                            this.occlusion.toLowerCase() == "impacted"
-                                ? Icons.arrow_downward
-                                : Icons.arrow_upward,
-                            color: Colors.red,
-                            size: 35,
-                          ))
-                      : const SizedBox.shrink(),
-                ],
-              );
+            : isNeedsExtraction
+                ? Icon(
+                    Icons.priority_high,
+                    size: 35,
+                    color: Colors.red,
+                  )
+                : Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Positioned(bottom: 20, child: up),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: this.widget.toothIndex % 10 < 6 &&
+                                this.widget.toothIndex > 50
+                            ? (this.widget.toothIndex / 10).round() == 5 ||
+                                    (this.widget.toothIndex / 10).round() == 8
+                                ? CrossAxisAlignment.start
+                                : CrossAxisAlignment.end
+                            : CrossAxisAlignment.center,
+                        children: reversed ? [down, up] : [up, down],
+                      ),
+                      isOcclusion
+                          ? Positioned(
+                              top: 25,
+                              child: Icon(
+                                this.occlusion.toLowerCase() == "impacted"
+                                    ? Icons.arrow_downward
+                                    : Icons.arrow_upward,
+                                color: Colors.red,
+                                size: 35,
+                              ))
+                          : const SizedBox.shrink(),
+                    ],
+                  ));
 
-    return Container(
-        height: 250,
-        width: 60,
-        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 15),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: reversed ? [tooth, colorsCircle] : [colorsCircle, tooth],
-        ));
+    return Column(children: [tooth, Text('${this.widget.toothIndex}')]);
   }
 
   @override
